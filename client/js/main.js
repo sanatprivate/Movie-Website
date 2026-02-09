@@ -1,22 +1,26 @@
 const API_URL = 'https://movie-websitee-o4mb.onrender.com/api';
 
-// Utility to get user info from local storage
+
+
 const getUser = () => {
     const user = localStorage.getItem('userInfo');
     return user ? JSON.parse(user) : null;
 };
 
-// Utility to set user info
+
+
 const setUser = (data) => {
     localStorage.setItem('userInfo', JSON.stringify(data));
 };
 
-// Utility to clear user info
+
+
 const removeUser = () => {
     localStorage.removeItem('userInfo');
 };
 
-// Update Navbar based on Auth State
+
+
 const updateNavbar = () => {
     const user = getUser();
     const navLinks = document.getElementById('nav-links');
@@ -45,7 +49,8 @@ const logoutHandler = () => {
     window.location.href = 'login.html';
 };
 
-// Generic Fetch Wrapper
+
+
 const apiFetch = async (endpoint, options = {}) => {
     const user = getUser();
     const headers = {
@@ -71,7 +76,8 @@ const apiFetch = async (endpoint, options = {}) => {
     return data;
 };
 
-// Run on page load
+
+
 document.addEventListener('DOMContentLoaded', () => {
     updateNavbar();
 });

@@ -1,5 +1,6 @@
 const movies = [
-    // Existing 10
+
+
     {
         title: 'Inception',
         description: 'A thief who steals corporate secrets through the use of dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.',
@@ -91,7 +92,8 @@ const movies = [
         posterUrl: 'https://m.media-amazon.com/images/M/MV5BMjlmZmI5MDctNDE2YS00YWE0LWE5ZWItZDBhYWQ0NTcxNWRhXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_SY1000_CR0,0,675,1000_AL_.jpg',
         averageRating: 8.6,
     },
-    // New 10 Movies
+
+
     {
         title: 'The Shawshank Redemption',
         description: 'Two imprisoned men bond over a number of years, finding solace and eventual redemption through acts of common decency.',
