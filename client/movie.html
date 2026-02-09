@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Details</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <header class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">SF Movies</a>
+            <nav>
+                <ul id="nav-links"></ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mt-4" style="min-height: 80vh;">
+        <a href="index.html" class="btn" style="background: #333; margin-bottom: 20px;">Back to Home</a>
+
+        <div id="loading" class="text-center">Loading...</div>
+        <div id="error-container" class="text-error text-center"></div>
+
+        <div id="movie-content" class="hidden">
+            <!-- Movie Info -->
+            <div style="display: flex; gap: 40px; flex-wrap: wrap;">
+                <img id="movie-poster" src="" alt="Poster" style="max-width: 300px; border-radius: 10px;">
+                <div style="flex: 1;">
+                    <h1 id="movie-title" style="font-size: 3rem; margin-bottom: 10px;"></h1>
+                    <div style="margin-bottom: 20px;">
+                        <span id="movie-rating" class="rating-badge"
+                            style="font-size: 1.2rem; margin-right: 15px;"></span>
+                        <span id="movie-meta" style="color: #aaa;"></span>
+                    </div>
+                    <p id="movie-description" style="font-size: 1.1rem; line-height: 1.8; margin-bottom: 20px;"></p>
+
+                    <div id="trailer-container" style="margin-top: 30px;">
+                        <h3>Trailer</h3>
+                        <iframe id="trailer-frame" width="100%" height="400" frameborder="0" allowfullscreen
+                            style="border-radius: 10px; margin-top: 10px;"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div style="margin-top: 60px;">
+                <h2>Reviews</h2>
+                <div id="reviews-list" class="grid-3 mt-2"></div>
+
+                <!-- Review Form -->
+                <div id="review-form-container" class="card mt-4" style="max-width: 600px;">
+                    <h3>Write a Review</h3>
+                    <div id="review-error" class="text-error mb-1"></div>
+                    <form id="review-form">
+                        <div class="form-group">
+                            <label>Rating</label>
+                            <select id="rating" class="form-control">
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5" selected>5</option>
+                                <option value="6">6</option>
+                                <option value="7">7</option>
+                                <option value="8">8</option>
+                                <option value="9">9</option>
+                                <option value="10">10</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" id="review-title" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Comment</label>
+                            <textarea id="comment" class="form-control" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn">Submit Review</button>
+                    </form>
+                </div>
+                <div id="login-prompt" class="hidden mt-2">
+                    Please <a href="login.html" class="text-success">login</a> to write a review.
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>SF Movies &copy; 2026</p>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const movieId = urlParams.get('id');
+
+        async function loadMovie() {
+            if (!movieId) window.location.href = 'index.html';
+
+            const loading = document.getElementById('loading');
+            const content = document.getElementById('movie-content');
+
+            try {
+                // Fetch Movie
+                const movie = await apiFetch(`/movies/${movieId}`);
+
+                document.getElementById('movie-poster').src = movie.posterUrl;
+                document.getElementById('movie-title').innerHTML = movie.title + (movie.isPremium ? ' <span title="Premium Content">⭐</span>' : '');
+                document.getElementById('movie-rating').innerText = `Rating: ${movie.averageRating ? movie.averageRating.toFixed(1) : 'N/A'}`;
+                document.getElementById('movie-meta').innerText = `${new Date(movie.releaseDate).getFullYear()} | ${movie.genre}`;
+                document.getElementById('movie-description').innerText = movie.description;
+
+                const user = getUser();
+                const isPremiumUser = user && (user.role === 'premium' || user.role === 'admin' || user.role === 'moderator');
+
+                if (movie.isPremium && !isPremiumUser) {
+                    document.getElementById('trailer-container').innerHTML = `
+                        <div class="card text-center" style="padding: 40px; border: 1px solid #d81f26;">
+                            <h2 style="color: #d81f26; margin-bottom: 20px;">🔒 Premium Content</h2>
+                            <p style="margin-bottom: 20px; font-size: 1.1rem;">This movie is available only for Premium users.</p>
+                            ${user
+                            ? '<button id="buy-premium-btn" class="btn">Upgrade to Premium for $5</button>'
+                            : '<a href="login.html" class="btn">Login to Upgrade</a>'
+                        }
+                        </div>
+                    `;
+
+                    if (user) {
+                        document.getElementById('buy-premium-btn').addEventListener('click', async () => {
+                            if (confirm('Are you sure you want to upgrade to Premium for $4.99?')) {
+                                try {
+                                    const data = await apiFetch('/users/upgrade', { method: 'PUT' });
+                                    setUser(data); // Update local storage with new role
+                                    alert('Congratulations! You are now a Premium user.');
+                                    window.location.reload();
+                                } catch (err) {
+                                    alert('Upgrade failed: ' + err.message);
+                                }
+                            }
+                        });
+                    }
+                } else {
+                    document.getElementById('trailer-frame').src = movie.trailerUrl.replace('watch?v=', 'embed/');
+                }
+
+                // Fetch Reviews
+                const reviews = await apiFetch(`/reviews/${movieId}`);
+                const reviewsList = document.getElementById('reviews-list');
+
+                if (reviews.length === 0) {
+                    reviewsList.innerHTML = '<p style="color: #aaa;">No reviews yet.</p>';
+                } else {
+                    reviewsList.innerHTML = reviews.map(review => `
+                        <div class="card">
+                            <div style="display: flex; justify-content: space-between;">
+                                <strong>
+                                    ${review.user ? review.user.username : 'Anonymous'}
+                                    ${review.user && review.user.role === 'premium' ? '<span title="Premium User">⭐</span>' : ''}
+                                    ${review.user && review.user.role === 'admin' ? '<span title="Admin">🛡️</span>' : ''}
+                                    ${review.user && review.user.role === 'moderator' ? '<span title="Moderator">🛡️</span>' : ''}
+                                </strong>
+                                <span class="rating-badge">${review.rating} / 10</span>
+                            </div>
+                            <h4 style="margin-top: 10px;">${review.title}</h4>
+                            <p style="margin-top: 5px; color: #ccc;">${review.comment}</p>
+                            <small style="color: #666; margin-top: 10px; display: block;">${review.createdAt.substring(0, 10)}</small>
+                        </div>
+                    `).join('');
+                }
+
+                loading.style.display = 'none';
+                content.classList.remove('hidden');
+
+            } catch (err) {
+                loading.style.display = 'none';
+                document.getElementById('error-container').innerText = err.message;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = getUser();
+            const formContainer = document.getElementById('review-form-container');
+            const loginPrompt = document.getElementById('login-prompt');
+
+            if (user && user.role !== 'admin') {
+                formContainer.classList.remove('hidden');
+                loginPrompt.classList.add('hidden');
+
+                document.getElementById('review-form').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    try {
+                        await apiFetch(`/reviews/${movieId}`, {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                rating: document.getElementById('rating').value,
+                                title: document.getElementById('review-title').value,
+                                comment: document.getElementById('comment').value
+                            })
+                        });
+                        alert('Review Submitted');
+                        window.location.reload();
+                    } catch (err) {
+                        document.getElementById('review-error').innerText = err.message;
+                    }
+                });
+            } else if (user && user.role === 'admin') {
+                formContainer.classList.add('hidden');
+                loginPrompt.innerHTML = '<p class="text-error">Admins cannot leave reviews.</p>';
+                loginPrompt.classList.remove('hidden');
+            } else {
+                formContainer.classList.add('hidden');
+                loginPrompt.classList.remove('hidden');
+            }
+        });
+
+        loadMovie();
+    </script>
+</body>
+
+</html>

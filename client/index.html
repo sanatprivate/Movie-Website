@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SF Movies</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <header class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">SF Movies</a>
+            <nav>
+                <ul id="nav-links">
+                    <!-- Links injected by JS -->
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mt-4" style="min-height: 80vh;">
+        <h1 class="mb-2">Latest Movies</h1>
+        <div id="error-container" class="text-error mb-2"></div>
+        <div id="loading" class="text-center">Loading...</div>
+        <div id="movies-grid" class="grid-3">
+            <!-- Movies injected here -->
+        </div>
+    </main>
+
+    <footer>
+        <p>SF Movies &copy; 2026 | Academic Project</p>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const moviesGrid = document.getElementById('movies-grid');
+            const loading = document.getElementById('loading');
+            const errorContainer = document.getElementById('error-container');
+
+            try {
+                const movies = await apiFetch('/movies');
+
+                loading.style.display = 'none';
+
+                if (movies.length === 0) {
+                    moviesGrid.innerHTML = '<p>No movies found.</p>';
+                    return;
+                }
+
+                movies.forEach(movie => {
+                    const card = document.createElement('div');
+                    card.className = 'movie-card';
+                    card.innerHTML = `
+                        <a href="movie.html?id=${movie._id}">
+                            <img src="${movie.posterUrl}" alt="${movie.title}">
+                            <div class="movie-info">
+                                <h3>${movie.title}</h3>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="color: #aaa; font-size: 0.9rem;">${new Date(movie.releaseDate).getFullYear()}</span>
+                                    <span class="rating-badge">${movie.averageRating.toFixed(1)}</span>
+                                </div>
+                            </div>
+                        </a>
+                    `;
+                    moviesGrid.appendChild(card);
+                });
+
+            } catch (err) {
+                loading.style.display = 'none';
+                errorContainer.innerText = err.message;
+            }
+        });
+    </script>
+</body>
+
+</html>

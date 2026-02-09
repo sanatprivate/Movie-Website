@@ -1,0 +1,246 @@
+:root {
+    --primary-color: #d81f26;
+    /* Softer Netflix Red */
+    --hover-color: #ff3b44;
+    --background-color: #141414;
+    --surface-color: #181818;
+    --text-primary: #ffffff;
+    --text-secondary: #b3b3b3;
+    --success-color: #46d369;
+    --error-color: #e50914;
+    --font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --transition: 0.3s ease;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--background-color);
+    color: var(--text-primary);
+    line-height: 1.6;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: var(--transition);
+}
+
+ul {
+    list-style: none;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Navbar */
+.navbar {
+    background-color: rgba(0, 0, 0, 0.9);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    padding: 15px 0;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    border-bottom: 1px solid #222;
+    /* Subtle dark border */
+}
+
+.navbar .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+
+.logo {
+    color: var(--primary-color);
+    font-size: 1.8rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.navbar ul {
+    display: flex;
+    gap: 20px;
+}
+
+.navbar a:hover {
+    color: var(--text-secondary);
+}
+
+/* Headings */
+h1,
+h2,
+h3 {
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+/* Grid System */
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 25px;
+}
+
+/* Movie Card */
+.movie-card {
+    background-color: var(--surface-color);
+    border-radius: 4px;
+    overflow: hidden;
+    transition: transform 0.3s;
+    position: relative;
+    border: none;
+    /* Removed borders */
+}
+
+.movie-card:hover {
+    transform: scale(1.05);
+    z-index: 10;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+}
+
+.movie-card img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+}
+
+.movie-info {
+    padding: 15px;
+}
+
+.movie-info h3 {
+    font-size: 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 5px;
+}
+
+.rating-badge {
+    background-color: #333;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: var(--success-color);
+    font-weight: bold;
+    float: right;
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    background: var(--primary-color);
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.btn:hover {
+    background: var(--hover-color);
+}
+
+.btn-block {
+    display: block;
+    width: 100%;
+}
+
+.btn-sm {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+}
+
+.btn-danger {
+    background: transparent;
+    border: 1px solid #555;
+    color: #ccc;
+}
+
+.btn-danger:hover {
+    border-color: var(--error-color);
+    color: var(--error-color);
+}
+
+/* Forms */
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border-radius: 4px;
+    border: none;
+    background: #333;
+    color: #fff;
+    font-size: 1rem;
+}
+
+.form-control:focus {
+    outline: none;
+    background: #444;
+    /* Subtle change instead of red border */
+}
+
+/* Review Item */
+.review-item {
+    background: #222;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+/* Utilities */
+.text-center {
+    text-align: center;
+}
+
+.mt-4 {
+    margin-top: 40px;
+}
+
+.mb-2 {
+    margin-bottom: 20px;
+}
+
+.text-error {
+    color: var(--error-color);
+}
+
+.text-success {
+    color: var(--success-color);
+}
+
+/* Footer */
+footer {
+    margin-top: 50px;
+    padding: 30px 0;
+    background: #000;
+    text-align: center;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.hidden {
+    display: none !important;
+}

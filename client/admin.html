@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <header class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">SF Movies</a>
+            <nav>
+                <ul id="nav-links"></ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mt-4" style="min-height: 80vh;">
+        <h1>Admin Dashboard</h1>
+
+        <!-- Add Movie Form -->
+        <div class="card mt-2">
+            <h3>Add New Movie</h3>
+            <div id="form-message" class="mb-1"></div>
+            <form id="movie-form">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="title" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="description" class="form-control" required></textarea>
+                </div>
+                <div class="grid-3">
+                    <div class="form-group">
+                        <label>Genre</label>
+                        <input type="text" id="genre" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Release Date</label>
+                        <input type="date" id="releaseDate" class="form-control" required>
+                    </div>
+                </div>
+                <div class="grid-3">
+                    <div class="form-group">
+                        <label>Trailer URL (YouTube)</label>
+                        <input type="text" id="trailerUrl" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Poster URL</label>
+                        <input type="text" id="posterUrl" class="form-control" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn">Add Movie</button>
+            </form>
+        </div>
+
+        <!-- Movie List -->
+        <h2 class="mt-4">Manage Movies</h2>
+        <div id="admin-movie-list" class="mt-2"></div>
+    </main>
+
+    <script src="js/main.js"></script>
+    <script>
+        const user = getUser();
+        if (!user || user.role !== 'admin') window.location.href = 'index.html';
+
+        async function loadMovies() {
+            try {
+                const movies = await apiFetch('/movies');
+                const list = document.getElementById('admin-movie-list');
+
+                list.innerHTML = `
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="background: #333; text-align: left;">
+                            <th style="padding: 10px;">Title</th>
+                            <th style="padding: 10px;">Genre</th>
+                            <th style="padding: 10px;">Actions</th>
+                        </tr>
+                        ${movies.map(movie => `
+                            <tr style="border-bottom: 1px solid #333;">
+                                <td style="padding: 10px;">${movie.title}</td>
+                                <td style="padding: 10px;">${movie.genre}</td>
+                                <td style="padding: 10px;">
+                                    <button onclick="deleteMovie('${movie._id}')" class="btn btn-danger btn-sm">Delete</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </table>
+                `;
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        document.getElementById('movie-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const msg = document.getElementById('form-message');
+
+            try {
+                const body = {
+                    title: document.getElementById('title').value,
+                    description: document.getElementById('description').value,
+                    genre: document.getElementById('genre').value,
+                    releaseDate: document.getElementById('releaseDate').value,
+                    trailerUrl: document.getElementById('trailerUrl').value,
+                    posterUrl: document.getElementById('posterUrl').value,
+                };
+
+                await apiFetch('/movies', {
+                    method: 'POST',
+                    body: JSON.stringify(body)
+                });
+
+                msg.innerText = 'Movie Added Successfully';
+                msg.className = 'text-success mb-1';
+                e.target.reset();
+                loadMovies();
+            } catch (err) {
+                msg.innerText = err.message;
+                msg.className = 'text-error mb-1';
+            }
+        });
+
+        async function deleteMovie(id) {
+            if (confirm('Are you sure?')) {
+                try {
+                    await apiFetch(`/movies/${id}`, { method: 'DELETE' });
+                    loadMovies();
+                } catch (err) {
+                    alert(err.message);
+                }
+            }
+        }
+
+        // Expose to window for onclick
+        window.deleteMovie = deleteMovie;
+
+        loadMovies();
+    </script>
+</body>
+
+</html>
